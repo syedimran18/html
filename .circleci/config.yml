@@ -9,6 +9,8 @@ jobs:
         node: 16.16.0        
       steps:
         - checkout
+        - setup_remote_docker:
+          docker_layer_caching: true
         - run:
             name: NPM Install
             command: |
