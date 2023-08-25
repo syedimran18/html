@@ -2,7 +2,7 @@ version: 2
 jobs:
     Simpler_Trading:
       docker:
-        - image: syedimran18/android-builds:v4.0
+        - image: syedimran18/circle-ci:v2
       working_directory: ~/repo
       environment:
         JVM_OPTS: -Xmx3200m
