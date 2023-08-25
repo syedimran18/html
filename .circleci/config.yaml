@@ -1,0 +1,84 @@
+version: 2
+jobs:
+    Simpler_Trading:
+      docker:
+        - image: syedimran18/android-builds:buildtools33
+      working_directory: ~/repo
+      environment:
+        JVM_OPTS: -Xmx3200m
+        node: 16.16.0        
+      steps:
+        - checkout
+        - run:
+            name: NPM Install
+            command: |
+              ruby -v
+              npm install
+        - run:
+            name: Install gem
+            command: |
+              gem install bundler -v 2.3.26
+              gem update --system 3.2.3
+              gem install rake
+              gem install rainbow -v '2.2.2'
+              gem install fastlane -NV
+        - run:
+            name: "Verify json"
+            command: |
+              bundler init --gemspec=.gemspec_template
+              bundler install
+              bundler exec fastlane run validate_play_store_json_key
+
+        # - run:
+        #     name: Install Cordova Android Platform
+        #     command: |
+        #       ionic cordova platform add android
+        #     no_output_timeout: 30m
+
+        # - run:
+        #     name: Prepare Cordova Android Platform
+        #     command: |
+        #       ionic cordova prepare android --no-build
+
+        # - run:
+        #     name: "Build Android"
+        #     command: |
+        #       ionic cordova build android --prod
+        #     no_output_timeout: 10m
+            
+        # - run:
+        #    name: "apk jar signing"
+        #    command: |
+        #       jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore $KEYSTORE_FILE -storepass $KEYSTORE_PASSWORD $AAB_FILE_NAME alias_name
+        #       jarsigner -verify $AAB_FILE_NAME
+
+#use this for copying the apk-
+        # - run:
+        #     name: "Copying APK"
+        #     command: |
+        #       mkdir -p /tmp/apk
+        #       cp -r /root/repo/platforms/android/app/build/outputs/apk/debug/app-debug.apk /tmp/apk
+        #       ls -ll /tmp/apk
+
+#use this for copying the aab file-
+        # - run:
+        #    name: "Copy aab"
+        #    command: |
+        #       mkdir -p /tmp/aab
+        #       cp -r /root/repo/platforms/android/app/build/outputs/bundle/release/app-release.aab /tmp/aab
+        #       ls -ll /tmp/aab
+
+        # - run:
+        #     name: Deploy apk to Play Store (alpha track)
+        #     command: |
+        #       bundler exec fastlane supply --aab /tmp/aab/*.aab --track alpha
+        
+        - store_artifacts:
+              path: /tmp/apk
+              destination: apk
+
+workflows:
+    version: 2
+    build_and_deploy:
+      jobs:
+        - Simpler_Trading
